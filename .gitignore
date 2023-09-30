@@ -1,0 +1,10 @@
+poetry.lock
+Scripts/dataset/cifar-10-python.tar.gz
+Scripts/dataset/cifar-10-batches-py/batches.meta
+Scripts/dataset/cifar-10-batches-py/data_batch_1
+Scripts/dataset/cifar-10-batches-py/data_batch_2
+Scripts/dataset/cifar-10-batches-py/data_batch_3
+Scripts/dataset/cifar-10-batches-py/data_batch_4
+Scripts/dataset/cifar-10-batches-py/data_batch_5
+Scripts/dataset/cifar-10-batches-py/readme.html
+Scripts/dataset/cifar-10-batches-py/test_batch
