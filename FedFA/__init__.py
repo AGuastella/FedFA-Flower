@@ -1,1 +1,1 @@
-"""FedProx package."""
+"""FedFA package."""

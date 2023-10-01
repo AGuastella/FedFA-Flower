@@ -1,4 +1,5 @@
 """Runs CNN federated learning for MNIST dataset."""
+
 from typing import Dict, Union
 
 import flwr as fl
@@ -7,16 +8,17 @@ from hydra.core.hydra_config import HydraConfig
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 
-from FedFA import client, server, utils
-from FedFA.dataset import load_datasets
-from FedFA.utils import save_results_as_pickle
-
+from fedprox import client, server, utils
+from fedprox.dataset import load_datasets
+from fedprox.utils import save_results_as_pickle
 
 FitConfig = Dict[str, Union[bool, float]]
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> None:
     """Run CNN federated learning on MNIST.
+
     Parameters
     ----------
     cfg : DictConfig

@@ -41,51 +41,24 @@ class FlowerClient(fl.client.NumPyClient):
         params_dict = zip(self.net.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params_dict})
         self.net.load_state_dict(state_dict, strict=True)
-
-    def fit(
-        self, parameters: NDArrays, config: Dict[str, Scalar]
-    ) -> Tuple[NDArrays, int, Dict]:
+ 
+ 
+    def fit(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[NDArrays, int, Dict]:
         """Implement distributed fit function for a given client."""
         self.set_parameters(parameters)
 
-        # At each round check if the client is a straggler,
-        # if so, train less epochs (to simulate partial work)
-        # if the client is told to be dropped (e.g. because not using
-        # FedProx in the server), the fit method returns without doing
-        # training.
-        # This method always returns via the metrics (last argument being
-        # returned) whether the client is a straggler or not. This info
-        # is used by strategies other than FedProx to discard the update.
-        if (
-            self.straggler_schedule[int(config["curr_round"]) - 1]
-            and self.num_epochs > 1
-        ):
-            num_epochs = np.random.randint(1, self.num_epochs)
-
-            if config["drop_client"]:
-                # return without doing any training.
-                # The flag in the metric will be used to tell the strategy
-                # to discard the model upon aggregation
-                return (
-                    self.get_parameters({}),
-                    len(self.trainloader),
-                    {"is_straggler": True},
-                )
-
-        else:
-            num_epochs = self.num_epochs
-
-        train(
-            self.net,
-            self.trainloader,
-            self.device,
-            epochs=num_epochs,
-            learning_rate=self.learning_rate,
-            proximal_mu=float(config["proximal_mu"]),
-        )
-
-        return self.get_parameters({}), len(self.trainloader), {"is_straggler": False}
-
+        # Apply FEDFA on the local data before training
+        for batch_idx, (inputs, targets) in enumerate(self.trainloader):
+            inputs, targets = inputs.to(self.device), targets.to(self.device)
+            
+            # Apply FEDFA transformation to inputs based on local parameters and proximal_mu
+            augmented_inputs = perform_fedfa(inputs, self.net, self.device, float(config["proximal_mu"]))
+            self.trainloader.dataset.data[batch_idx] = augmented_inputs.cpu().numpy()
+        
+        # Rest of the fit method remains the same
+        return super().fit(parameters, config)
+    
+    
     def evaluate(
         self, parameters: NDArrays, config: Dict[str, Scalar]
     ) -> Tuple[float, int, Dict]:

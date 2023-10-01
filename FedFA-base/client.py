@@ -1,19 +1,26 @@
 """Defines the MNIST Flower Client and a function to instantiate it."""
+
+
 from collections import OrderedDict
 from typing import Callable, Dict, List, Tuple
 
+import flwr as fl
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from flwr.common.typing import NDArrays, Scalar
 from hydra.utils import instantiate
 from omegaconf import DictConfig
+from torch.utils.data import DataLoader
 
-import flwr as fl
-from flwr.common.typing import NDArrays, Scalar
+from fedprox.models import test, train
 
-from FedFA.models import Net, test, train, get_parameters, set_parameters
 
-class FlowerClient(fl.client.NumPyClient):
+# pylint: disable=too-many-arguments
+class FlowerClient(
+    fl.client.NumPyClient
+):  # pylint: disable=too-many-instance-attributes
+    """Standard Flower client for CNN training."""
+
     def __init__(
         self,
         net: torch.nn.Module,
@@ -33,7 +40,7 @@ class FlowerClient(fl.client.NumPyClient):
         self.straggler_schedule = straggler_schedule
 
     def get_parameters(self, config: Dict[str, Scalar]) -> NDArrays:
-        # Return the parameters of the current net.
+        """Return the parameters of the current net."""
         return [val.cpu().numpy() for _, val in self.net.state_dict().items()]
 
     def set_parameters(self, parameters: NDArrays) -> None:
@@ -94,6 +101,7 @@ class FlowerClient(fl.client.NumPyClient):
         loss, accuracy = test(self.net, self.valloader, self.device)
         return float(loss), len(self.valloader), {"accuracy": float(accuracy)}
 
+
 def gen_client_fn(
     num_clients: int,
     num_rounds: int,
@@ -105,6 +113,7 @@ def gen_client_fn(
     model: DictConfig,
 ) -> Callable[[str], FlowerClient]:  # pylint: disable=too-many-arguments
     """Generate the client function that creates the Flower Clients.
+
     Parameters
     ----------
     num_clients : int

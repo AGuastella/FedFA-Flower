@@ -1,5 +1,4 @@
 """Contains utility functions for CNN FL on MNIST."""
-"""Contains utility functions for CNN FL on MNIST."""
 
 import pickle
 from pathlib import Path
