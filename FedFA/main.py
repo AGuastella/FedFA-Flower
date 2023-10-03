@@ -11,6 +11,9 @@ from FedFA import client, server, utils
 from FedFA.dataset import load_datasets
 from FedFA.utils import save_results_as_pickle
 
+import os
+
+#os.environ["HYDRA_FULL_ERROR"] = "1"
 
 FitConfig = Dict[str, Union[bool, float]]
 
@@ -23,7 +26,7 @@ def main(cfg: DictConfig) -> None:
         An omegaconf object that stores the hydra config.
     """
     # print config structured as YAML
-    print(OmegaConf.to_yaml(cfg))
+    #print(OmegaConf.to_yaml(cfg))
 
     # partition dataset and get dataloaders
     trainloaders, valloaders, testloader = load_datasets(
@@ -41,13 +44,13 @@ def main(cfg: DictConfig) -> None:
         num_rounds=cfg.num_rounds,
         learning_rate=cfg.learning_rate,
         stragglers=cfg.stragglers_fraction,
-        model=cfg.model,
+        # model=cfg.model,
     )
 
     # get function that will executed by the strategy's evaluate() method
     # Set server's device
     device = cfg.server_device
-    evaluate_fn = server.gen_evaluate_fn(testloader, device=device, model=cfg.model)
+    evaluate_fn = server.gen_evaluate_fn(testloader, device=device) #, model=cfg.model)
 
     # get a function that will be used to construct the config that the client's
     # fit() method will received
@@ -85,6 +88,7 @@ def main(cfg: DictConfig) -> None:
     # Experiment completed. Now we save the results and
     # generate plots using the `history`
     print("................")
+    
     print(history)
 
     # Hydra automatically creates an output directory
@@ -115,7 +119,7 @@ def main(cfg: DictConfig) -> None:
         save_path,
         (file_suffix),
     )
-
+    
 
 if __name__ == "__main__":
     main()

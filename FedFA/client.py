@@ -11,7 +11,7 @@ from omegaconf import DictConfig
 import flwr as fl
 from flwr.common.typing import NDArrays, Scalar
 
-from FedFA.models import Net, test, train, get_parameters, set_parameters
+from FedFA.models import ResNet18FA, test, train, get_parameters, set_parameters
 
 class FlowerClient(fl.client.NumPyClient):
     def __init__(
@@ -31,6 +31,7 @@ class FlowerClient(fl.client.NumPyClient):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.straggler_schedule = straggler_schedule
+
 
     def get_parameters(self, config: Dict[str, Scalar]) -> NDArrays:
         # Return the parameters of the current net.
@@ -75,13 +76,14 @@ class FlowerClient(fl.client.NumPyClient):
         else:
             num_epochs = self.num_epochs
 
+        print('trainloader: ', self.trainloader)
         train(
             self.net,
             self.trainloader,
             self.device,
             epochs=num_epochs,
             learning_rate=self.learning_rate,
-            proximal_mu=float(config["proximal_mu"]),
+            # proximal_mu=float(config["proximal_mu"]),
         )
 
         return self.get_parameters({}), len(self.trainloader), {"is_straggler": False}
@@ -102,7 +104,7 @@ def gen_client_fn(
     valloaders: List[DataLoader],
     learning_rate: float,
     stragglers: float,
-    model: DictConfig,
+    # model: DictConfig,
 ) -> Callable[[str], FlowerClient]:  # pylint: disable=too-many-arguments
     """Generate the client function that creates the Flower Clients.
     Parameters
@@ -144,7 +146,8 @@ def gen_client_fn(
         """Create a Flower client representing a single organization."""
         # Load model
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        net = instantiate(model).to(device)
+        # net = instantiate(model).to(device)
+        net = ResNet18FA().to(device)
 
         # Note: each client gets a different trainloader/valloader, so each client
         # will train and evaluate on their own unique data

@@ -24,7 +24,7 @@ fit_config:
   drop_client: false # with FedProx, clients shouldn't be dropped even if they are stragglers
 
 model:
-  _target_: FedFA.models.LogisticRegression
+  _target_: FedFA.models.ResNet18FA #?????
   num_classes: 10
 
 strategy:

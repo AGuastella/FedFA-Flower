@@ -10,13 +10,13 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 
-from FedFA.models import test
+from FedFA.models import ResNet18FA, test
 
 
 def gen_evaluate_fn(
     testloader: DataLoader,
     device: torch.device,
-    model: DictConfig,
+    # model: DictConfig,
 ) -> Callable[
     [int, NDArrays, Dict[str, Scalar]], Optional[Tuple[float, Dict[str, Scalar]]]
 ]:
@@ -41,7 +41,10 @@ def gen_evaluate_fn(
     ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
         # pylint: disable=unused-argument
         """Use the entire CIFAR-10 test set for evaluation."""
-        net = instantiate(model)
+        # net = instantiate(model)
+        net = ResNet18FA().to(device)
+
+        
         params_dict = zip(net.state_dict().keys(), parameters_ndarrays)
         state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params_dict})
         net.load_state_dict(state_dict, strict=True)

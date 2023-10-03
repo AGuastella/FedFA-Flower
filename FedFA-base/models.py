@@ -79,6 +79,39 @@ class LogisticRegression(nn.Module):
         output_tensor = self.linear(torch.flatten(input_tensor, 1))
         return output_tensor
 
+def train(  # pylint: disable=too-many-arguments
+    net: nn.Module,
+    trainloader: DataLoader,
+    device: torch.device,
+    epochs: int,
+    learning_rate: float,
+    proximal_mu: float,
+) -> None:
+    """Train the network on the training set.
+
+    Parameters
+    ----------
+    net : nn.Module
+        The neural network to train.
+    trainloader : DataLoader
+        The DataLoader containing the data to train the network on.
+    device : torch.device
+        The device on which the model should be trained, either 'cpu' or 'cuda'.
+    epochs : int
+        The number of epochs the model should be trained for.
+    learning_rate : float
+        The learning rate for the SGD optimizer.
+    proximal_mu : float
+        Parameter for the weight of the proximal term.
+    """
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, weight_decay=0.001)
+    global_params = [val.detach().clone() for val in net.parameters()]
+    net.train()
+    for _ in range(epochs):
+        net = _train_one_epoch(
+            net, global_params, trainloader, device, criterion, optimizer, proximal_mu
+        )
 
 def _train_one_epoch(  # pylint: disable=too-many-arguments
     net: nn.Module,
@@ -123,41 +156,6 @@ def _train_one_epoch(  # pylint: disable=too-many-arguments
         loss.backward()
         optimizer.step()
     return net
-
-def train(  # pylint: disable=too-many-arguments
-    net: nn.Module,
-    trainloader: DataLoader,
-    device: torch.device,
-    epochs: int,
-    learning_rate: float,
-    proximal_mu: float,
-) -> None:
-    """Train the network on the training set.
-
-    Parameters
-    ----------
-    net : nn.Module
-        The neural network to train.
-    trainloader : DataLoader
-        The DataLoader containing the data to train the network on.
-    device : torch.device
-        The device on which the model should be trained, either 'cpu' or 'cuda'.
-    epochs : int
-        The number of epochs the model should be trained for.
-    learning_rate : float
-        The learning rate for the SGD optimizer.
-    proximal_mu : float
-        Parameter for the weight of the proximal term.
-    """
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, weight_decay=0.001)
-    global_params = [val.detach().clone() for val in net.parameters()]
-    net.train()
-    for _ in range(epochs):
-        net = _train_one_epoch(
-            net, global_params, trainloader, device, criterion, optimizer, proximal_mu
-        )
-
 
 
 def test(
