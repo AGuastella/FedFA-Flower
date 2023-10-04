@@ -89,6 +89,7 @@ def main(cfg: DictConfig) -> None:
     # generate plots using the `history`
     print("................")
     
+    '''
     print(history)
 
     # Hydra automatically creates an output directory
@@ -119,7 +120,7 @@ def main(cfg: DictConfig) -> None:
         save_path,
         (file_suffix),
     )
-    
+    '''
 
 if __name__ == "__main__":
     main()

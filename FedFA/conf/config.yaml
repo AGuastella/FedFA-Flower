@@ -1,9 +1,9 @@
 ---
 
-num_clients: 1000 # total number of clients
-total_clients: 1000 # total number of clients
+num_clients: 10 #100 total number of clients
+total_clients: 10 #100 total number of clients
 num_epochs: 5 #10 number of local epochs
-batch_size: 10
+batch_size: 5 #10
 num_rounds: 10 #100
 clients_per_round: 1 #10
 stragglers_fraction: 0.9

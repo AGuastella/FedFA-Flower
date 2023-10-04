@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 
+'''
 class Net(nn.Module):
     ## !!!!!!!! num_classes è temporaneo !!!!!!!!!!!!!!!
     def __init__(self, num_classes: int) -> None:
@@ -29,7 +30,7 @@ class Net(nn.Module):
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
-
+'''
 '''
 class LogisticRegression(nn.Module):
     """A network for logistic regression using a single fully connected layer.
@@ -61,6 +62,7 @@ class LogisticRegression(nn.Module):
         return output_tensor
 
 '''
+
 def train(  # pylint: disable=too-many-arguments
     net: nn.Module,
     trainloader: DataLoader,
@@ -126,7 +128,7 @@ def set_parameters(net, parameters: List[np.ndarray]):
     net.load_state_dict(state_dict, strict=True)
 
 
-################################
+######################################################################################
 
 #BATCH_NORM_DECAY = 0.997
 #BATCH_NORM_EPSILON = 1e-5
@@ -256,14 +258,15 @@ class ResNet18FA(nn.Module):
     def __init__(self, num_classes=10, norm=""):
         super(ResNet18FA, self).__init__()
         self.in_channels = 3  # Set input channels to 3
-        self.layer0 = self.make_layer(3, 64, norm=norm)  # Modify the first layer to accept 3 channels
-        self.layer1 = self.make_layer(64, 64, norm=norm)
+        self.layer0 = self.make_layer(3, 32, norm=norm)  # Modify the first layer to accept 3 channels
+        self.layer1 = self.make_layer(32, 64, norm=norm)
         self.layer2 = self.make_layer(64, 128, stride=2, norm=norm)
         self.layer3 = self.make_layer(128, 256, stride=2, norm=norm)
         self.layer4 = self.make_layer(256, 512, stride=2, norm=norm)
         self.gap = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Linear(512, num_classes)
-        self.ffa = [FFALayer(nfeat=nfeat) for nfeat in [64, 64, 128, 256, 512]]
+        #self.fc = nn.Linear(512, num_classes)
+        self.fc = nn.Linear(256, num_classes)
+        self.ffa = [FFALayer(nfeat=nfeat) for nfeat in [32, 64, 128, 256, 512]]
 
 
     def make_layer(self, out_channels, blocks, stride=1, norm=""):
@@ -284,25 +287,47 @@ class ResNet18FA(nn.Module):
         std = [ffa.running_var_std_bmic.data for ffa in self.ffa]
         return mean, std
 
-    def forward(self, x):
+    '''def forward(self, x):
         print("Input shape:", x.shape)  # Print input shape
         x = self.layer0(x)
-        x = self.ffa[0](x)
         print("After layer0 shape:", x.shape)  # Print shape after layer0
+        x = self.ffa[0](x)
+        print("After FFA1 shape:", x.shape)  # Print shape after FFA1
+
         x = self.layer1(x)
+        print("After layer1 shape:", x.shape)  # Print shape after layer1
         x = self.ffa[1](x)
+        print("After FFA2 shape:", x.shape)  # Print shape after FFA2
 
         x = self.layer2(x)
+        print("After layer2 shape:", x.shape)  # Print shape after layer2
         x = self.ffa[2](x)
+        print("After FFA3 shape:", x.shape)  # Print shape after FFA3
 
         x = self.layer3(x)
+        print("After layer3 shape:", x.shape)  # Print shape after layer3
         x = self.ffa[3](x)
+        print("After FFA4 shape:", x.shape)  # Print shape after FFA4
 
         x = self.layer4(x)
+        print("After layer4 shape:", x.shape)  # Print shape after layer4
         x = self.ffa[4](x)
+        print("After FFA5 shape:", x.shape)  # Print shape after FFA5
 
         x = self.gap(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
+
         print("Final output shape:", x.shape)  # Print final output shape
+        return x
+'''
+    def forward(self, x):
+        x = self.layer0(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.gap(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
         return x
