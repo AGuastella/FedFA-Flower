@@ -14,6 +14,8 @@ from FedFA.utils import save_results_as_pickle
 import os
 
 #os.environ["HYDRA_FULL_ERROR"] = "1"
+os.environ["RAY_memory_monitor_refresh_ms"] = "0"
+
 
 FitConfig = Dict[str, Union[bool, float]]
 
@@ -57,7 +59,7 @@ def main(cfg: DictConfig) -> None:
     def get_on_fit_config():
         def fit_config_fn(server_round: int):
             # resolve and convert to python dict
-            fit_config: FitConfig = OmegaConf.to_container(  # type: ignore
+            fit_config: FitConfig = OmegaConf.to_container(  # type: ignore     ????????????????????????
                 cfg.fit_config, resolve=True
             )
             fit_config["curr_round"] = server_round  # add round info
@@ -72,7 +74,7 @@ def main(cfg: DictConfig) -> None:
         evaluate_fn=evaluate_fn,
         on_fit_config_fn=get_on_fit_config(),
     )
-
+    print('[Main] Starting simulation ! ! !')
     # Start simulation
     history = fl.simulation.start_simulation(
         client_fn=client_fn,

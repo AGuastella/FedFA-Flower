@@ -69,7 +69,7 @@ def train(  # pylint: disable=too-many-arguments
     device: torch.device,
     epochs: int,
     learning_rate: float,
-    # proximal_mu: float,
+    proximal_mu: float,
 ) -> None:
     """Train the network on the training set."""
     criterion = torch.nn.CrossEntropyLoss()
@@ -97,25 +97,31 @@ def test(
     net: nn.Module, testloader: DataLoader, device: torch.device
 ) -> Tuple[float, float]:
     """Evaluate the network on the entire test set."""
+    print('[Model] Starting Test')
+    
     criterion = nn.CrossEntropyLoss()
     correct, total, loss = 0, 0, 0.0
     net.eval()
+    print('[Model] Evaluation done')
+
     with torch.no_grad():
+        print('[Model] testloader dim: ', len(testloader))
         for images, labels in testloader:
+            print('[Model] Prediction process')
             images, labels = images.to(device), labels.to(device)
             outputs = net(images)
             loss += criterion(outputs, labels).item()
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+            break # !!!!!!!!!!!!!!!!!!!!!!! remove print('[])
     if len(testloader.dataset) == 0:
         raise ValueError("Testloader can't be 0, exiting...")
     loss /= len(testloader.dataset)
     accuracy = correct / total
+
+    print('[Model] Ending Test')
     return loss, accuracy
-
-
-
 
 
 def get_parameters(net) -> List[np.ndarray]:

@@ -1,14 +1,14 @@
 ---
 
-num_clients: 10 #100 total number of clients
-total_clients: 10 #100 total number of clients
-num_epochs: 5 #10 number of local epochs
-batch_size: 5 #10
-num_rounds: 10 #100
+num_clients: 100 #100 total number of clients
+total_clients: 5 #100 total number of clients
+num_epochs: 1 #10 number of local epochs
+batch_size: 10 #10
+num_rounds: 2 #100
 clients_per_round: 1 #10
 stragglers_fraction: 0.9
 learning_rate: 0.03
-mu: 1.0 # it can be >= 0
+mu: 0.0 # # it should be zero always
 
 client_resources:
   num_cpus: 1
@@ -17,19 +17,16 @@ client_resources:
 server_device: cpu
 
 dataset_config:
-  iid: false
-  balance: false
-  power_law: true
+  dataset: "cifar100" # can be "cifar100" or "tiny-imagenet"
+  alpha_dirichlet: 0.3 # can be 0.3, 0.6
 
 fit_config:
-  drop_client: false # with FedProx, clients shouldn't be dropped even if they are stragglers
-
-model:
-  _target_: FedFA.models.Net
-  num_classes: 10
+  proximal_mu: ${mu}
+  drop_client: true
 
 # da repo fedml Alessio
 strategy:
+  #_target_: flwr.server.strategy.FedAvg
   _target_: flwr.server.strategy.FedAvg
   fraction_fit: 0.00001
   fraction_evaluate: 0.0

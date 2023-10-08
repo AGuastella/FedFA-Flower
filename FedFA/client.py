@@ -32,9 +32,12 @@ class FlowerClient(fl.client.NumPyClient):
         self.learning_rate = learning_rate
         self.straggler_schedule = straggler_schedule
 
+        print('[Client] Created Client')
+
 
     def get_parameters(self, config: Dict[str, Scalar]) -> NDArrays:
         # Return the parameters of the current net.
+        print('[Client] Get Parameter')
         return [val.cpu().numpy() for _, val in self.net.state_dict().items()]
 
     def set_parameters(self, parameters: NDArrays) -> None:
@@ -77,13 +80,14 @@ class FlowerClient(fl.client.NumPyClient):
             num_epochs = self.num_epochs
 
         print('trainloader: ', self.trainloader)
+        print('[Client] Start training')
         train(
             self.net,
             self.trainloader,
             self.device,
             epochs=num_epochs,
             learning_rate=self.learning_rate,
-            # proximal_mu=float(config["proximal_mu"]),
+            proximal_mu=float(config["proximal_mu"]),
         )
 
         return self.get_parameters({}), len(self.trainloader), {"is_straggler": False}
@@ -106,33 +110,6 @@ def gen_client_fn(
     stragglers: float,
     # model: DictConfig,
 ) -> Callable[[str], FlowerClient]:  # pylint: disable=too-many-arguments
-    """Generate the client function that creates the Flower Clients.
-    Parameters
-    ----------
-    num_clients : int
-        The number of clients present in the setup
-    num_rounds: int
-        The number of rounds in the experiment. This is used to construct
-        the scheduling for stragglers
-    num_epochs : int
-        The number of local epochs each client should run the training for before
-        sending it to the server.
-    trainloaders: List[DataLoader]
-        A list of DataLoaders, each pointing to the dataset training partition
-        belonging to a particular client.
-    valloaders: List[DataLoader]
-        A list of DataLoaders, each pointing to the dataset validation partition
-        belonging to a particular client.
-    learning_rate : float
-        The learning rate for the SGD  optimizer of clients.
-    stragglers : float
-        Proportion of stragglers in the clients, between 0 and 1.
-
-    Returns
-    -------
-    Callable[[str], FlowerClient]
-        A client function that creates Flower Clients.
-    """
     # Defines a straggling schedule for each clients, i.e at which round will they
     # be a straggler. This is done so at each round the proportion of straggling
     # clients is respected
@@ -147,7 +124,7 @@ def gen_client_fn(
         # Load model
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # net = instantiate(model).to(device)
-        net = ResNet18FA().to(device)
+        net = ResNet18FA().to(device) # !?!?!?!?!?!?!?!?!?!?!?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         # Note: each client gets a different trainloader/valloader, so each client
         # will train and evaluate on their own unique data

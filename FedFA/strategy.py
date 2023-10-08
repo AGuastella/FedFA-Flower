@@ -32,8 +32,7 @@ import flwr as fl
 from FedFA.models import Net, get_parameters
 
 
-#class FedCustom(fl.server.strategy.Strategy):
-class FedFA(fl.server.strategy.Strategy):
+class FedCustom(fl.server.strategy.Strategy):
 
     def __init__(
         self,
