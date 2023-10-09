@@ -8,7 +8,8 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 
 from FedFA import client, server, utils
-from FedFA.dataset import load_datasets
+#from FedFA.dataset import load_datasets
+from FedFA.datasetDirichlet import load_datasets
 from FedFA.utils import save_results_as_pickle
 
 import os
@@ -21,12 +22,6 @@ FitConfig = Dict[str, Union[bool, float]]
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> None:
-    """Run CNN federated learning on MNIST.
-    Parameters
-    ----------
-    cfg : DictConfig
-        An omegaconf object that stores the hydra config.
-    """
     # print config structured as YAML
     #print(OmegaConf.to_yaml(cfg))
 

@@ -13,3 +13,4 @@ FedFA/__pycache__/
 dataset/cifar-10-batches-py/readme.html
 dataset/cifar-10-python.tar.gz
 outputs/
+cifar10_dirichlet

@@ -31,6 +31,11 @@ import flwr as fl
 
 from FedFA.models import Net, get_parameters
 
+# BUILD STRATEGY FROM SCRATCH
+# This is an axample of custom strategy, taken from the flower website
+# Let’s overwrite the configure_fit method such that it passes a higher learning rate (potentially also other hyperparameters) 
+# to the optimizer of a fraction of the clients. We will keep the sampling of the clients as it is in FedAvg and then change 
+# the configuration dictionary (one of the FitIns attributes).
 
 class FedCustom(fl.server.strategy.Strategy):
 

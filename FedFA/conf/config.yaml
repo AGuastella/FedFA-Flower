@@ -17,7 +17,7 @@ client_resources:
 server_device: cpu
 
 dataset_config:
-  dataset: "cifar100" # can be "cifar100" or "tiny-imagenet"
+  dataset: "cifar10" # can be "cifar100" or "cifar10"
   alpha_dirichlet: 0.3 # can be 0.3, 0.6
 
 fit_config:

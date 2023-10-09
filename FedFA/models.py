@@ -9,59 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-
-'''
-class Net(nn.Module):
-    ## !!!!!!!! num_classes è temporaneo !!!!!!!!!!!!!!!
-    def __init__(self, num_classes: int) -> None:
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16 * 5 * 5)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-'''
-'''
-class LogisticRegression(nn.Module):
-    """A network for logistic regression using a single fully connected layer.
-
-    As described in the Li et al., 2020 paper :
-
-    [Federated Optimization in Heterogeneous Networks]
-    (https://arxiv.org/pdf/1812.06127.pdf)
-    """
-
-    def __init__(self, num_classes: int) -> None:
-        super().__init__()
-        self.linear = nn.Linear(28 * 28, num_classes)
-
-    def forward(self, input_tensor: torch.Tensor) -> torch.Tensor:
-        """Forward pass.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input Tensor that will pass through the network
-
-        Returns
-        -------
-        torch.Tensor
-            The resulting Tensor after it has passed through the network
-        """
-        output_tensor = self.linear(torch.flatten(input_tensor, 1))
-        return output_tensor
-
-'''
+NUM_CLASSES = 10 # Incorporate the functionality to extract this value from the config file
 
 def train(  # pylint: disable=too-many-arguments
     net: nn.Module,
@@ -114,7 +62,7 @@ def test(
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-            break # !!!!!!!!!!!!!!!!!!!!!!! remove print('[])
+            #  break # !!!!!!!!!!!!!!!!!!!!!!! remove print('[])
     if len(testloader.dataset) == 0:
         raise ValueError("Testloader can't be 0, exiting...")
     loss /= len(testloader.dataset)
@@ -261,7 +209,7 @@ class FFALayer(nn.Module):
 
 
 class ResNet18FA(nn.Module):
-    def __init__(self, num_classes=10, norm=""):
+    def __init__(self, num_classes=NUM_CLASSES, norm=""):
         super(ResNet18FA, self).__init__()
         self.in_channels = 3  # Set input channels to 3
         self.layer0 = self.make_layer(3, 32, norm=norm)  # Modify the first layer to accept 3 channels
@@ -293,40 +241,33 @@ class ResNet18FA(nn.Module):
         std = [ffa.running_var_std_bmic.data for ffa in self.ffa]
         return mean, std
 
-    '''def forward(self, x):
-        print("Input shape:", x.shape)  # Print input shape
+    '''
+    # This version of the forward include also the ffa layar.
+    # However it give some inconsistent problem of mismatch of channel between layers
+    def forward(self, x):
         x = self.layer0(x)
-        print("After layer0 shape:", x.shape)  # Print shape after layer0
         x = self.ffa[0](x)
-        print("After FFA1 shape:", x.shape)  # Print shape after FFA1
 
         x = self.layer1(x)
-        print("After layer1 shape:", x.shape)  # Print shape after layer1
         x = self.ffa[1](x)
-        print("After FFA2 shape:", x.shape)  # Print shape after FFA2
 
         x = self.layer2(x)
-        print("After layer2 shape:", x.shape)  # Print shape after layer2
         x = self.ffa[2](x)
-        print("After FFA3 shape:", x.shape)  # Print shape after FFA3
 
         x = self.layer3(x)
-        print("After layer3 shape:", x.shape)  # Print shape after layer3
         x = self.ffa[3](x)
-        print("After FFA4 shape:", x.shape)  # Print shape after FFA4
 
         x = self.layer4(x)
-        print("After layer4 shape:", x.shape)  # Print shape after layer4
         x = self.ffa[4](x)
-        print("After FFA5 shape:", x.shape)  # Print shape after FFA5
 
         x = self.gap(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-
-        print("Final output shape:", x.shape)  # Print final output shape
+        
         return x
+
 '''
+    # In this version all the ffa layar was removed
     def forward(self, x):
         x = self.layer0(x)
         x = self.layer1(x)
