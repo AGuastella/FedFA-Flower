@@ -10,8 +10,13 @@ from omegaconf import DictConfig
 
 import random
 
+num_smpls = 10
+
 class CustomDataset(Dataset):
     def __init__(self, x, y, transform=None):
+        assert isinstance(x, torch.Tensor), f"Expected x to be a tensor, but got {type(x)}"
+        assert isinstance(y, torch.Tensor), f"Expected y to be a tensor, but got {type(y)}"
+        assert x.shape[0] == y.shape[0], "Number of samples in x and y must be the same"
         self.x = x
         self.y = y
         self.transform = transform
@@ -51,8 +56,9 @@ def generate_dirichlet_partitions(dataset, alpha, num_of_clients):
     os.makedirs(os.path.join(folder_path, "train"), exist_ok=True)
 
     num_of_classes = 10 if dataset == "cifar10" else 100
+    # num_smpls = 5000 if dataset == "cifar10" else 500
     smpls = generate_dirichlet_samples(num_of_classes, alpha, num_of_clients, 
-                                       5000 if dataset == "cifar10" else 500)
+                                       num_smpls)
     datasets = []
     for c, per_client_sample in enumerate(smpls):
         x, y = load_data(dataset, per_client_sample)
@@ -79,31 +85,7 @@ def generate_dirichlet_samples(num_of_classes, alpha, num_of_clients, num_of_exa
     return int_samples
 
 
-'''
-def load_data(dataset, per_client_sample):
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
-    trainset = CIFAR10("./dataset", train=True, download=True, transform=transform) if dataset == "cifar10" \
-        else CIFAR100("./dataset", train=True, download=True, transform=transform)
-
-    indexes_of_labels = [torch.where(torch.tensor(trainset.targets) == label)[0] for label in range(len(trainset.classes))]
-
-    x_data = []
-    y_data = []
-
-    for label, num_of_examples_per_label in enumerate(per_client_sample):
-        available_indices = indexes_of_labels[label].numpy()
-        if len(available_indices) < num_of_examples_per_label:
-            raise ValueError("Not enough examples for label {}".format(label))
-        
-        extracted_indices = random.sample(list(available_indices), num_of_examples_per_label)
-        x_data.append(torch.tensor(trainset.data[extracted_indices]))  # Convert to torch tensor
-        y_data.append(torch.tensor(trainset.targets)[extracted_indices])  # Convert to torch tensor
-
-    return torch.cat(x_data, dim=0), torch.cat(y_data, dim=0)
-'''
-
-def load_data(dataset, per_client_sample):
+def load_data(dataset, per_client_sample) -> Tuple[DataLoader, DataLoader]:
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     trainset = CIFAR10("./dataset", train=True, download=True, transform=transform) if dataset == "cifar10" \
@@ -163,8 +145,8 @@ def load_datasets(  # pylint: disable=too-many-arguments
 
     trainloaders = []
     valloaders = []
-    testloaders = []
-
+    # testloaders = []
+    
 
     datasets, dataset_path = generate_dirichlet_partitions(config.dataset, config.alpha_dirichlet, num_clients)
 
@@ -192,6 +174,7 @@ def load_datasets(  # pylint: disable=too-many-arguments
     ds_test = CIFAR10("./dataset", train=False, download=True, transform=transform) if config.dataset == "cifar10" \
         else CIFAR100("./dataset", train=False, download=True, transform=transform)
     testloader = DataLoader(ds_test, batch_size=batch_size, shuffle=True)
-    testloaders.append(testloader)
 
-    return trainloaders, valloaders, testloaders
+    print('[datasetDiri] trainloader',trainloader)
+
+    return trainloaders, valloaders, testloader

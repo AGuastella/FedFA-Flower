@@ -25,6 +25,7 @@ def load_datasets(  # pylint: disable=too-many-arguments
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Adjusted normalization values for CIFAR-10/CIFAR-100
     ])
 
+    print('[Dataset] Loading ', config.dataset, ' dataset')
     if config.dataset == 'cifar100':
         trainset = CIFAR100(root="./dataset", train=True, download=True, transform=transform)
         testset = CIFAR100(root="./dataset", train=False, download=True, transform=transform)

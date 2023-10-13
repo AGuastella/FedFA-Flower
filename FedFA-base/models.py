@@ -28,18 +28,6 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(512, num_classes)
 
     def forward(self, input_tensor: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the CNN.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input Tensor that will pass through the network
-
-        Returns
-        -------
-        torch.Tensor
-            The resulting Tensor after it has passed through the network
-        """
         output_tensor = F.relu(self.conv1(input_tensor))
         output_tensor = self.pool(output_tensor)
         output_tensor = F.relu(self.conv2(output_tensor))

@@ -11,7 +11,8 @@ from omegaconf import DictConfig
 import flwr as fl
 from flwr.common.typing import NDArrays, Scalar
 
-from FedFA.models import ResNet18FA, test, train, get_parameters, set_parameters
+from FedFA.modelsFedFAlight import ResNet18FA, test, train, get_parameters, set_parameters
+#from FedFA.models import Net, test, train, get_parameters, set_parameters
 
 class FlowerClient(fl.client.NumPyClient):
     def __init__(
@@ -79,7 +80,7 @@ class FlowerClient(fl.client.NumPyClient):
         else:
             num_epochs = self.num_epochs
 
-        print('trainloader: ', self.trainloader)
+        #print('trainloader: ', self.trainloader)
         print('[Client] Start training')
         train(
             self.net,
@@ -125,6 +126,7 @@ def gen_client_fn(
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # net = instantiate(model).to(device)
         net = ResNet18FA().to(device) # !?!?!?!?!?!?!?!?!?!?!?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #net = Net().to(device) # !?!?!?!?!?!?!?!?!?!?!?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         # Note: each client gets a different trainloader/valloader, so each client
         # will train and evaluate on their own unique data

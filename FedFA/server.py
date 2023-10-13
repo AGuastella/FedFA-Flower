@@ -10,7 +10,8 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 
-from FedFA.models import ResNet18FA, test
+from FedFA.modelsFedFAlight import ResNet18FA, test
+#from FedFA.models import Net, test
 
 
 def gen_evaluate_fn(
@@ -28,6 +29,7 @@ def gen_evaluate_fn(
         """Use the entire CIFAR-10 test set for evaluation."""
         # net = instantiate(model)
         net = ResNet18FA().to(device)
+        # net = Net().to(device)
 
         print('[Server] Starting evaluation config')
 

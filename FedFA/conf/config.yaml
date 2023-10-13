@@ -1,11 +1,11 @@
 ---
 
 num_clients: 100 #100 total number of clients
-total_clients: 5 #100 total number of clients
-num_epochs: 1 #10 number of local epochs
+total_clients: 100 #100 total number of clients
+num_epochs: 10 #10 number of local epochs
 batch_size: 10 #10
-num_rounds: 2 #100
-clients_per_round: 1 #10
+num_rounds: 10 #100
+clients_per_round: 10 #10
 stragglers_fraction: 0.9
 learning_rate: 0.03
 mu: 0.0 # # it should be zero always

@@ -8,9 +8,10 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 
 from FedFA import client, server, utils
-#from FedFA.dataset import load_datasets
-from FedFA.datasetDirichlet import load_datasets
 from FedFA.utils import save_results_as_pickle
+
+from FedFA.dataset import load_datasets
+#from FedFA.datasetDirichlet import load_datasets
 
 import os
 
@@ -51,7 +52,7 @@ def main(cfg: DictConfig) -> None:
 
     # get a function that will be used to construct the config that the client's
     # fit() method will received
-    def get_on_fit_config():
+    '''def get_on_fit_config():
         def fit_config_fn(server_round: int):
             # resolve and convert to python dict
             fit_config: FitConfig = OmegaConf.to_container(  # type: ignore     ????????????????????????
@@ -68,7 +69,17 @@ def main(cfg: DictConfig) -> None:
         cfg.strategy,
         evaluate_fn=evaluate_fn,
         on_fit_config_fn=get_on_fit_config(),
+    )'''
+
+    strategy = fl.server.strategy.FedAvg(
+        fraction_fit=0.3,
+        fraction_evaluate=0.3,
+        min_fit_clients=3,
+        min_evaluate_clients=3,
+        min_available_clients=cfg.num_clients,
+        #initial_parameters=fl.common.ndarrays_to_parameters(params),
     )
+
     print('[Main] Starting simulation ! ! !')
     # Start simulation
     history = fl.simulation.start_simulation(
@@ -86,7 +97,8 @@ def main(cfg: DictConfig) -> None:
     # generate plots using the `history`
     print("................")
     
-    '''
+
+
     print(history)
 
     # Hydra automatically creates an output directory
@@ -101,9 +113,9 @@ def main(cfg: DictConfig) -> None:
     strategy_name = strategy.__class__.__name__
     file_suffix: str = (
         f"_{strategy_name}"
-        f"{'_iid' if cfg.dataset_config.iid else ''}"
-        f"{'_balanced' if cfg.dataset_config.balance else ''}"
-        f"{'_powerlaw' if cfg.dataset_config.power_law else ''}"
+        #f"{'_iid' if cfg.dataset_config.iid else ''}"
+        #f"{'_balanced' if cfg.dataset_config.balance else ''}"
+        #f"{'_powerlaw' if cfg.dataset_config.power_law else ''}"
         f"_C={cfg.num_clients}"
         f"_B={cfg.batch_size}"
         f"_E={cfg.num_epochs}"
@@ -117,7 +129,7 @@ def main(cfg: DictConfig) -> None:
         save_path,
         (file_suffix),
     )
-    '''
+
 
 if __name__ == "__main__":
     main()
