@@ -29,7 +29,7 @@ from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 
 import flwr as fl
 
-from FedFA.models import Net, get_parameters
+from FedFA.model import Net, get_parameters
 
 # BUILD STRATEGY FROM SCRATCH
 # This is an axample of custom strategy, taken from the flower website

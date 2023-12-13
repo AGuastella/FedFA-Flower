@@ -1,4 +1,3 @@
-"""Runs CNN federated learning for MNIST dataset."""
 from typing import Dict, Union
 
 import flwr as fl
@@ -24,7 +23,12 @@ FitConfig = Dict[str, Union[bool, float]]
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> None:
     # print config structured as YAML
-    #print(OmegaConf.to_yaml(cfg))
+    print(OmegaConf.to_yaml(cfg))
+
+    # Determinate if the dateset is yet present in the devie at .local_root_dir, or if is it in the program folder root_dir
+    #dataset_root_dir = cfg.dataset.local_root_dir if cfg.is_local else cfg.dataset.root_dir
+    dataset_root_dir = cfg.dataset.local_root_dir if cfg.is_local else cfg.dataset.root_dir
+    
 
     # partition dataset and get dataloaders
     trainloaders, valloaders, testloader = load_datasets(
@@ -93,12 +97,15 @@ def main(cfg: DictConfig) -> None:
         strategy=strategy,
     )
 
+
+
+
+
+
     # Experiment completed. Now we save the results and
     # generate plots using the `history`
     print("................")
     
-
-
     print(history)
 
     # Hydra automatically creates an output directory

@@ -1,5 +1,4 @@
 ---
-
 num_clients: 100 #100 total number of clients
 total_clients: 100 #100 total number of clients
 num_epochs: 10 #10 number of local epochs
@@ -9,6 +8,7 @@ clients_per_round: 10 #10
 stragglers_fraction: 0.9
 learning_rate: 0.03
 mu: 0.0 # # it should be zero always
+is_local: true
 
 client_resources:
   num_cpus: 1

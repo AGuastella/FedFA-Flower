@@ -61,7 +61,7 @@ class FlowerClient(fl.client.NumPyClient):
         # This method always returns via the metrics (last argument being
         # returned) whether the client is a straggler or not. This info
         # is used by strategies other than FedProx to discard the update.
-        if (
+        '''if (
             self.straggler_schedule[int(config["curr_round"]) - 1]
             and self.num_epochs > 1
         ):
@@ -77,8 +77,9 @@ class FlowerClient(fl.client.NumPyClient):
                     {"is_straggler": True},
                 )
 
-        else:
-            num_epochs = self.num_epochs
+        else:'''
+        
+        num_epochs = self.num_epochs
 
         #print('trainloader: ', self.trainloader)
         print('[Client] Start training')
@@ -88,7 +89,7 @@ class FlowerClient(fl.client.NumPyClient):
             self.device,
             epochs=num_epochs,
             learning_rate=self.learning_rate,
-            proximal_mu=float(config["proximal_mu"]),
+            # proximal_mu=float(config["proximal_mu"]),
         )
 
         return self.get_parameters({}), len(self.trainloader), {"is_straggler": False}
